@@ -1,62 +1,72 @@
 const User = require('../models/user');
+const { validationErrorHandler, defaultErrorHandler, badRequestErrorHandler } = require('../errorHandlers');
+
+const options = {
+  runValidators: true,
+  new: true,
+};
 
 const getUsers = (req, res) => User.find({})
   .then((user) => res.send({ data: user }))
-  .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+  .catch(() => defaultErrorHandler(req, res));
 
 const getUser = (req, res) => User.findById(req.params.id)
   .then((user) => {
     if (user) {
       res.status(200).send(user);
-      return;
     }
-    res.status(404).send({ message: 'пользователь не найден' });
+    badRequestErrorHandler(req, res);
   })
-  .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      validationErrorHandler(req, res);
+    }
+    defaultErrorHandler(req, res);
+  });
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
-    .catch(() => {
-      if (res.status(400).send) {
-        res.send({ message: 'Переданы некорректные данные в метод создания пользователя' });
+    .then((user) => res.sendd({ data: user }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        validationErrorHandler(req, res);
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      defaultErrorHandler(req, res);
     });
 };
 
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about })
+  User.findByIdAndUpdate(req.user._id, { name, about }, options)
     .then((user) => {
       if (user) {
         res.status(200).send({ data: user });
       }
-      res.status(404).send({ message: 'Пользователь с указанным Id не найден' });
+      badRequestErrorHandler(req, res);
     })
-    .catch(() => {
-      if (res.status(400)) {
-        res.send({ message: 'Переданы некорректные данные при обновлении пользователя' });
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        validationErrorHandler(req, res);
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      defaultErrorHandler(req, res);
     });
 };
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar })
+  User.findByIdAndUpdate(req.user._id, { avatar }, options)
     .then((user) => {
       if (user) {
         res.status(200).send({ data: user });
       }
-      res.status(404).send({ message: 'Пользователь с указанным Id не найден' });
+      badRequestErrorHandler(req, res);
     })
-    .catch(() => {
-      if (res.status(400)) {
-        res.send({ message: 'Переданы некорректные данные при обновлении аватара' });
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        validationErrorHandler(req, res);
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      defaultErrorHandler(req, res);
     });
 };
 

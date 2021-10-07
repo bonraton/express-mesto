@@ -1,11 +1,12 @@
 {
   "name": "express-mesto",
   "version": "1.0.0",
-  "description": "## Директории",
-  "main": "index.js",
+  "description": "backend project mesto",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "lint": "npx eslint ."
   },
   "repository": {
     "type": "git",
@@ -21,7 +22,6 @@
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.24.2",
-    "lint": "npx eslint .",
     "nodemon": "^2.0.13"
   },
   "dependencies": {

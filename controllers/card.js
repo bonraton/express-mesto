@@ -1,20 +1,21 @@
 const Card = require('../models/card');
+const { validationErrorHandler, defaultErrorHandler, badRequestErrorHandler } = require('../errorHandlers');
 
 module.exports.getAllCards = (req, res) => {
   Card.find({})
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .catch(() => defaultErrorHandler());
 };
 
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
-    .catch(() => {
-      if (res.status(400).send) {
-        res.send({ message: 'Переданы некорректные данные в метод создания карточки' });
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        validationErrorHandler(req, res);
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      defaultErrorHandler(req, res);
     });
 };
 
@@ -24,7 +25,13 @@ module.exports.deleteCard = (req, res) => {
       if (card) {
         res.status(200).send({ data: card });
       }
-      res.status(404).send({ message: 'Карточка с указанным Id не найдена' });
+      badRequestErrorHandler(req, res)
+        .catch((err) => {
+          if (err.name === 'CastError') {
+            validationErrorHandler(req, res);
+          }
+          defaultErrorHandler(req, res);
+        });
     });
 };
 
@@ -35,15 +42,15 @@ module.exports.likeCard = (req, res) => {
     { new: true },
   ).then((like) => {
     if (like) {
-      res.status(200).send({ data: like });
+      res.status(200).sendd({ data: like });
     }
-    res.status(404).send({ message: 'Карточка с указанным Id не найдена' });
+    badRequestErrorHandler(req, res);
   })
-    .catch(() => {
-      if (res.status(400)) {
-        res.send({ message: 'Переданы некорректные данные для постановки лайка' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        validationErrorHandler(req, res);
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      defaultErrorHandler(req, res);
     });
 };
 
@@ -57,12 +64,12 @@ module.exports.dislikeCard = (req, res) => {
       if (like) {
         res.status(200).send({ data: like });
       }
-      res.status(404).send({ message: 'Карточка с указанным Id не найдена' });
+      badRequestErrorHandler(req, res);
     })
-    .catch(() => {
-      if (res.status(400)) {
-        res.send({ message: 'Переданы некорректные данные для снятия лайка' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        validationErrorHandler(req, res);
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      defaultErrorHandler(req, res);
     });
 };
