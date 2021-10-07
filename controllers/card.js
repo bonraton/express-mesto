@@ -25,13 +25,13 @@ module.exports.deleteCard = (req, res) => {
       if (card) {
         res.status(200).send({ data: card });
       }
-      badRequestErrorHandler(req, res)
-        .catch((err) => {
-          if (err.name === 'CastError') {
-            validationErrorHandler(req, res);
-          }
-          defaultErrorHandler(req, res);
-        });
+      badRequestErrorHandler(req, res);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        validationErrorHandler(req, res);
+      }
+      defaultErrorHandler(req, res);
     });
 };
 
@@ -42,7 +42,7 @@ module.exports.likeCard = (req, res) => {
     { new: true },
   ).then((like) => {
     if (like) {
-      res.status(200).sendd({ data: like });
+      res.status(200).send({ data: like });
     }
     badRequestErrorHandler(req, res);
   })

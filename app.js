@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { badRequestErrorHandler } = require('./errorHandlers');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -21,6 +22,10 @@ app.use((req, res, next) => {
 
 app.use('/users', require('./routes/user'));
 app.use('/cards', require('./routes/cards'));
+
+app.use('*', (req, res) => {
+  badRequestErrorHandler(req, res);
+});
 
 app.listen(PORT, () => {
 });
