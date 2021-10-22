@@ -1,41 +1,38 @@
 const Card = require('../models/card');
-const { validationErrorHandler, defaultErrorHandler, badRequestErrorHandler } = require('../errorHandlers');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
-module.exports.getAllCards = (req, res) => {
+const getAllCards = (req, res, next) => {
   Card.find({})
     .then((card) => res.send({ data: card }))
-    .catch(() => defaultErrorHandler());
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        validationErrorHandler(req, res);
+        throw new BadRequestError('Переданы некорректные данные');
       }
-      defaultErrorHandler(req, res);
-    });
-};
-
-module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
-    .then((card) => {
-      if (card) {
-        res.status(200).send({ data: card });
-      }
-      badRequestErrorHandler(req, res);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        validationErrorHandler(req, res);
-      }
-      defaultErrorHandler(req, res);
-    });
+    .catch(next);
 };
 
-module.exports.likeCard = (req, res) => {
+const deleteCard = (req, res, next) => {
+  Card.findById(req.params.id)
+    .then((card) => {
+      if (card.owner === req.user._id) {
+        res.status(200).send(card.delete());
+      }
+      throw new ForbiddenError('Доступ запрещен');
+    })
+    .catch(next);
+};
+
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -44,17 +41,12 @@ module.exports.likeCard = (req, res) => {
     if (like) {
       res.status(200).send({ data: like });
     }
-    badRequestErrorHandler(req, res);
+    throw new NotFoundError('Данная карточка не найдена');
   })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        validationErrorHandler(req, res);
-      }
-      defaultErrorHandler(req, res);
-    });
+    .catch(next);
 };
 
-module.exports.dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -64,12 +56,11 @@ module.exports.dislikeCard = (req, res) => {
       if (like) {
         res.status(200).send({ data: like });
       }
-      badRequestErrorHandler(req, res);
+      throw new NotFoundError('Данная карточка не найдена');
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        validationErrorHandler(req, res);
-      }
-      defaultErrorHandler(req, res);
-    });
+    .catch(next);
+};
+
+module.exports = {
+  getAllCards, createCard, deleteCard, likeCard, dislikeCard,
 };
