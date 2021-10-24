@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const { badRequestErrorHandler } = require('./errorHandlers');
 const { login, createUser } = require('./controllers/user');
 const { jwtCheck } = require('./middlewares/auth');
+const { loginValidation, registerValidation } = require('./middlewares/validation');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -17,8 +18,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use('/users', jwtCheck, require('./routes/user'));
 app.use('/cards', jwtCheck, require('./routes/cards'));
 
-app.post('/login', login);
-app.post('/signup', createUser);
+app.post('/signin', login, loginValidation);
+app.post('/signup', createUser, registerValidation);
 
 app.use('*', (req, res) => {
   badRequestErrorHandler(req, res);

@@ -52,7 +52,7 @@ const login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-      res.send(token);
+      res.json(token);
     })
     .catch(() => next(new UnauthorizedError('Пользователь с указанным email не найден')));
 };

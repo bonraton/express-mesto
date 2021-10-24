@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../configs');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const jwtCheck = (req, res, next) => {
   const a = req.headers;
   if (!a.authorization) {
-    res.status(401).send(a.authorization);
+    throw new UnauthorizedError('Ошибка аутентификации');
   }
 
   const token = a.authorization.replace();
@@ -13,10 +14,10 @@ const jwtCheck = (req, res, next) => {
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    return res.status(401).send(err);
+    throw new UnauthorizedError('Ошибка аутентификации');
   }
   req.user = payload;
-  next();
+  return next();
 };
 
 module.exports = { jwtCheck };
