@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { badRequestErrorHandler } = require('./errorHandlers');
 const { login, createUser } = require('./controllers/user');
 const { jwtCheck } = require('./middlewares/auth');
 const { loginValidation, registerValidation } = require('./middlewares/validation');
