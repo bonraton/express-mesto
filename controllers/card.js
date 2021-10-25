@@ -24,7 +24,7 @@ const createCard = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
     .then((card) => {
-      if (card.owner === req.user._id) {
+      if (card.owner.valueOf() === req.user._id) {
         res.status(200).send(card.delete());
       }
       throw new ForbiddenError('Доступ запрещен');
@@ -34,7 +34,7 @@ const deleteCard = (req, res, next) => {
 
 const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    req.params.cardid,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   ).then((like) => {
@@ -48,7 +48,7 @@ const likeCard = (req, res, next) => {
 
 const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    req.params.id,
     { $pull: { likes: req.user._id } },
     { new: true },
   )

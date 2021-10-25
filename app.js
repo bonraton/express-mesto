@@ -1,8 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const { login, createUser } = require('./controllers/user');
 const { jwtCheck } = require('./middlewares/auth');
-const { loginValidation, registerValidation } = require('./middlewares/validation');
+const { registerValidator, loginValidator } = require('./middlewares/validation');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -17,14 +18,12 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use('/users', jwtCheck, require('./routes/user'));
 app.use('/cards', jwtCheck, require('./routes/cards'));
 
-app.post('/signin', login, loginValidation);
-app.post('/signup', createUser, registerValidation);
+app.post('/signin', loginValidator, login);
+app.post('/signup', registerValidator, createUser);
 
-app.use('*', (req, res) => {
-  badRequestErrorHandler(req, res);
-});
+app.use('*', jwtCheck);
 
-app.use((err, req, res, next) => {
+app.use(errors(), (err, req, res, next) => {
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
   next();

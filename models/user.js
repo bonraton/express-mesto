@@ -4,7 +4,7 @@ require('mongoose-type-email');
 
 const userSchema = new mongoose.Schema({
   email: {
-    type: mongoose.SchemaTypes.Email,
+    type: String,
     required: true,
     unique: true,
   },
@@ -17,7 +17,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     minlength: 2,
     maxlength: 30,
-    default: 'Жак-Ив Кусто',
   },
   about: {
     type: String,

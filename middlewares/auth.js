@@ -3,12 +3,12 @@ const { JWT_SECRET } = require('../configs');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const jwtCheck = (req, res, next) => {
-  const a = req.headers;
-  if (!a.authorization) {
+  const { authorization } = req.headers;
+  if (!authorization || authorization.startsWith('Bearer ')) {
     throw new UnauthorizedError('Ошибка аутентификации');
   }
 
-  const token = a.authorization.replace();
+  const token = authorization.replace('Bearer ', '');
   let payload;
 
   try {
