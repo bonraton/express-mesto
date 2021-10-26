@@ -47,7 +47,7 @@ const registerValidator = celebrate({
   body: Joi.object().keys({
     email: JoiStringRequire.custom(checkEmailValidity),
     password: JoiStringRequire.min(8).max(24),
-    name: Joi.string().min(2).max(30).default('Zalupa'),
+    name: Joi.string().min(2).max(30).default('Жак-ив Кусто'),
     about: Joi.string().min(2).max(30).default('Исследователь'),
     avatar: JoiStringRequire.custom(checkUrlValidity),
   }),
@@ -69,7 +69,7 @@ const updateUserInfoValidator = celebrate({
 
 const updateUserAvatarValidator = celebrate({
   body: Joi.object().keys({
-    avatar: JoiStringRequire.custom(checkEmailValidity),
+    avatar: JoiStringRequire.custom(checkUrlValidity),
   }),
 });
 
