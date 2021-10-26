@@ -2,6 +2,7 @@ const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
+const NotfoundError = require('../errors/NotFoundError');
 
 const getAllCards = (req, res, next) => {
   Card.find({})
@@ -28,6 +29,11 @@ const deleteCard = (req, res, next) => {
         res.status(200).send(card.delete());
       }
       throw new ForbiddenError('Доступ запрещен');
+    })
+    .catch((err) => {
+      if (err.name === 'TypeError') {
+        throw new NotfoundError('Данная карточка не найдена');
+      }
     })
     .catch(next);
 };
