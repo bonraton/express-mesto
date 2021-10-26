@@ -4,7 +4,7 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const jwtCheck = (req, res, next) => {
   const { authorization } = req.headers;
-  if (!authorization || authorization.startsWith('Bearer ')) {
+  if (!authorization || !authorization.startsWith('Bearer ')) {
     throw new UnauthorizedError('Ошибка аутентификации');
   }
 
