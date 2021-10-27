@@ -31,12 +31,6 @@ const createCardValidator = celebrate({
   }),
 });
 
-const likeCardValidator = celebrate({
-  params: Joi.object().keys({
-    id: JoiStringRequire.custom(checkObjectIdValidity),
-  }),
-});
-
 const objectIdValidator = celebrate({
   params: Joi.object().keys({
     id: JoiStringRequire.custom(checkObjectIdValidity),
@@ -46,17 +40,17 @@ const objectIdValidator = celebrate({
 const registerValidator = celebrate({
   body: Joi.object().keys({
     email: JoiStringRequire.custom(checkEmailValidity),
-    password: JoiStringRequire.min(8).max(24),
+    password: JoiStringRequire.min(8),
     name: Joi.string().min(2).max(30).default('Жак-ив Кусто'),
     about: Joi.string().min(2).max(30).default('Исследователь'),
-    avatar: JoiStringRequire.custom(checkUrlValidity),
+    avatar: Joi.string().custom(checkUrlValidity).default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
   }),
 });
 
 const loginValidator = celebrate({
   body: Joi.object().keys({
     email: JoiStringRequire.custom(checkEmailValidity),
-    password: JoiStringRequire.min(8).max(24),
+    password: JoiStringRequire.min(8),
   }),
 });
 
@@ -78,7 +72,6 @@ module.exports = {
   registerValidator,
   loginValidator,
   objectIdValidator,
-  likeCardValidator,
   updateUserInfoValidator,
   updateUserAvatarValidator,
 };

@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
-require('mongoose-type-email');
 
 const userSchema = new mongoose.Schema({
   email: {
