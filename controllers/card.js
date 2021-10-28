@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
@@ -24,8 +25,9 @@ const createCard = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
     .then((card) => {
-      if (card.owner.valueOf() === req.user._id) {
-        res.status(200).send(card.delete());
+      if (card.owner.equals(req.user._id)) {
+        return card.deleteOne(card)
+          .then(() => res.send({ data: card }));
       }
       next(new ForbiddenError('Вы не можете удалить чужую карточку'));
     })
@@ -33,6 +35,21 @@ const deleteCard = (req, res, next) => {
       next(new NotFoundError('Данная карточка не найдена'));
     });
 };
+
+// const deleteCard = (req, res, next) => {
+//   Card.findById(req.params.id)
+//     .then((card) => {
+//       console.log(card.owner.equals(req.user._id));
+//       if (card.owner.equals(req.user._id)) {
+//         card.deleteOne(card)
+//           .then(() => res.send({ data: card }));
+//       }
+//       next(new ForbiddenError('Вы не можете удалить чужую карточку'));
+//     })
+//     .catch(() => {
+//       next(new NotFoundError('Данная карточка не найдена'));
+//     });
+// };
 
 const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
